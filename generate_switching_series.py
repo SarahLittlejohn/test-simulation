@@ -1,5 +1,7 @@
 import random
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.linalg import eig
 
 def generate_switching_series(n, switching_rate):
     series = [0]  # Start with 0 explicitly
@@ -57,13 +59,12 @@ def generate_e2e_series_with_noise(n, switching_rate, p_noise):
     return noisy_series
 
 # Example usage:
-series = generate_switching_series(n=50, switching_rate=3)
-noisy_series = generate_series_with_noise(series, p_noise=0.1)
-plt.figure(figsize=(12, 6))
-plt.plot(series, label="Switching Series with Noise", color="blue")
-plt.plot(noisy_series, label="Switching Series with Noise", color="red", linestyle="--")
-plt.xlabel("Time")
-plt.ylabel("Qubit Value (0 or 1)")
-plt.title("Switching Series Time Series Plot with Noise")
-plt.legend()
-plt.show()
+# series = generate_switching_series(n=300, switching_rate=3)
+# noisy_series = generate_series_with_noise(series, p_noise=0.001)
+# plt.figure(figsize=(12, 6))
+# plt.plot(noisy_series, label="Switching Series with Noise", color="red")
+# plt.xlabel("Time")
+# plt.ylabel("Qubit Value (0 or 1)")
+# plt.title("Switching Series Time Series Plot with Noise")
+# plt.legend()
+# plt.show()
