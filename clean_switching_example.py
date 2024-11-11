@@ -1,0 +1,5 @@
+from generate_switching_series import generate_switching_series
+from model_clean_switching_series import model_switching_rate_clean_series
+
+series = generate_switching_series(30000, 3)
+model_switching_rate_clean_series(series)
