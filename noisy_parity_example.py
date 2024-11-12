@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
-from generate_switching_series import generate_e2e_series_with_noise
-from model_noisy_switching_series import model_switching_rate_noisy_series
+from generate_parity_series import generate_e2e_parity_series_with_noise
+from model_noisy_parity_series import model_switching_rate_noisy_series
 import numpy as np
 import pandas as pd
 from pandas.plotting import table
 
-series = generate_e2e_series_with_noise(10000, 5, 0.005)
+series = generate_e2e_parity_series_with_noise(10000, 5, 0.005)
 
 def bootstrap_model_switching_rate(series, n_bootstrap=1000, segment_length=None):
     if segment_length is None:
@@ -35,7 +35,7 @@ total_std = []
 
 for x in sample:
     print(x)
-    series = generate_e2e_series_with_noise(10000, x, 0.005)
+    series = generate_e2e_parity_series_with_noise(10000, x, 0.005)
     mean_rate, std_rate = bootstrap_model_switching_rate(series, segment_length=1000)
     switching_rate = model_switching_rate_noisy_series(series)
     total_switching_rate.append(switching_rate)
