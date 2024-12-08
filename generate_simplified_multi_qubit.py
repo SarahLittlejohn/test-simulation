@@ -25,6 +25,7 @@ def fit_switching_rate(x, y):
 plt.figure(figsize=(12, 8))
 
 min_switching_rates = []
+min_times = []
 
 for i, row in enumerate(gaussian_matrix):
     valid_indices = ~np.isnan(row)  # Mask for valid (non-NaN) data
@@ -42,10 +43,16 @@ for i, row in enumerate(gaussian_matrix):
     plt.plot(x_valid, fitted_values, linestyle='--', linewidth=1.5, label=f"Row {i+1} (Fit)")
 
     if i > 0:
-        min_switching_rates.append(np.min(fitted_values))
+        min_rate = np.min(fitted_values)
+        min_index = np.argmin(fitted_values)
+        min_time = x_valid[min_index] 
 
-print(min_switching_rates)
+        min_switching_rates.append(min_rate)
+        min_times.append(min_time)
 
+for i, (rate, time) in enumerate(zip(min_switching_rates, min_times), start=1):
+    print(f"Row {i}: Min Switching Rate = {rate:.4f}, Time = {time}")
+    
 # Customize the plot
 plt.title("Gaussian Dips and Fitted Reverse Bell Curves")
 plt.xlabel("Time")
