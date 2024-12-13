@@ -1,0 +1,5 @@
+from computed_data.generate_parity_series import generate_parity_series
+from computed_data.model_clean_parity_series import model_switching_rate_clean_series
+
+series = generate_parity_series(30000, 3)
+model_switching_rate_clean_series(series)

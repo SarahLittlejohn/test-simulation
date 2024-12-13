@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from generate_switching_rate_series import generate_switching_rate
+from computed_data.generate_switching_rate_series import generate_switching_rate
 
 # Generate or use your existing switching_rates data
 x = np.linspace(0, 1000, 1000)  # Assuming 1000 points for x

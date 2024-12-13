@@ -27,9 +27,9 @@ all_fitted_values = []
 
 # fit each row
 for i, row in enumerate(gaussian_matrix):
-    valid_indices = ~np.isnan(row)  # Mask for valid (non-NaN) data
-    x_valid = np.where(valid_indices)[0]  # Indices of valid values
-    y_valid = row[valid_indices]  # Non-NaN values
+    valid_indices = ~np.isnan(row)
+    x_valid = np.where(valid_indices)[0]
+    y_valid = row[valid_indices]
 
     # Skip rows with no valid data
     if len(x_valid) == 0:
@@ -49,7 +49,6 @@ for i, row in enumerate(gaussian_matrix):
 
 # for i, (rate, time) in enumerate(zip(min_switching_rates, min_times), start=1):
 #     print(f"Row {i}: Min Switching Rate = {rate:.4f}, Time = {time}")
-
 
 # Fit the exponetial decay
 def exp_decay(distance, lambda_):

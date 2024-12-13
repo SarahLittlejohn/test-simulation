@@ -1,4 +1,4 @@
-from model_noisy_parity_series import model_switching_rate_noisy_series
+from computed_data.model_noisy_parity_series import model_switching_rate_noisy_series
 
 def segment_and_compute_switching_rates(parity_series, segment_length):
     # Segment the parity series into chunks of segment_length

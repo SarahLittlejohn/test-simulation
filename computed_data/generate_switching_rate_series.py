@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from generate_parity_series import generate_parity_series_dynamic
-from model_switching_rate_from_gen_parity import segment_and_compute_switching_rates, model_switching_rate_noisy_series
+from computed_data.generate_parity_series import generate_parity_series_dynamic
+from computed_data.model_switching_rate_from_gen_parity import segment_and_compute_switching_rates, model_switching_rate_noisy_series
 
 def generate_switching_rate():
     baseline = 7
