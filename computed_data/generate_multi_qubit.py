@@ -1,9 +1,8 @@
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from computed_data.generate_parity_series import generate_parity_series_dynamic
-from computed_data.model_switching_rate_from_gen_parity import segment_and_compute_switching_rates
+from generate_parity_series import generate_parity_series_dynamic
+from find_switching_rate import find_dynamic_switching_rates_noisy_series
 from perfect_data.generate_gaussian_data import generate_gaussian_matrix
 
 # Defining parameters
@@ -34,7 +33,7 @@ def fit_switching_rate(computed_switching_rates, bell_curve_mid_point):
 for i, total_series in enumerate(gaussian_matrix[1:]):  # Skip the baseline row
     # Generate parity data and compute switching rates
     parity_series = generate_parity_series_dynamic(total_series, len(total_series))
-    switching_rates = segment_and_compute_switching_rates(parity_series, segment_length)
+    switching_rates = find_dynamic_switching_rates_noisy_series(parity_series, segment_length)
     
     # Fit the switching rates to the reverse bell curve
     bell_curve_mid_point = len(total_series) // 2

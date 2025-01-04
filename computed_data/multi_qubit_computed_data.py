@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from perfect_data.generate_gaussian_data import generate_gaussian_matrix
-from computed_data.generate_parity_series import generate_parity_series_dynamic
-from computed_data.model_switching_rate_from_gen_parity import segment_and_compute_switching_rates
+from generate_parity_series import generate_parity_series_dynamic
+from find_switching_rate import find_dynamic_switching_rates_noisy_series
 
-# Defining parameters
+# Defining parametersv
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
 baseline = 7
 initial_amplitude = 3
@@ -38,7 +38,7 @@ for i, row in enumerate(gaussian_matrix):
         continue
 
     parity_series = generate_parity_series_dynamic(y_valid, len(y_valid))
-    switching_rates = segment_and_compute_switching_rates(parity_series, 1000)
+    switching_rates = find_dynamic_switching_rates_noisy_series(parity_series, 1000)
 
     # Fit the curve
     x_segment = np.linspace(x_valid[0], x_valid[-1], len(switching_rates))

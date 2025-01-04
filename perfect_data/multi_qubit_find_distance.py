@@ -16,20 +16,16 @@ all_fitted_values = []
 
 gaussian_matrix = generate_gaussian_matrix_variable_impact(baseline, initial_amplitude, d, length_impact, impact=d_impact)
 
-
 def reverse_bell_curve(x, a, b, c, d):
     return -a * np.exp(-((x - b)**2) / (2 * c**2)) + d
-
 
 def fit_switching_rate(x, y):
     popt, _ = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
     return reverse_bell_curve(x, *popt), popt
 
-
 global_min_rate = float('inf')
 global_min_d = None
 global_min_time = None
-
 
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
