@@ -5,7 +5,7 @@ from tools.generate_gaussian_data import generate_gaussian_matrix
 from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
 from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
 
-d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+d = [0, 0.5, 1, 1.5 , 2]
 baseline = 7
 initial_amplitude = 3
 length_impact = 200
@@ -38,7 +38,7 @@ min_times = []
 all_fitted_values = []
 
 # fit each row
-for i, row in enumerate(perfect_switching_rates):
+for i, row in enumerate(simulated_switching_rates):
     valid_indices = ~np.isnan(row)
     x_valid = np.where(valid_indices)[0]
     y_valid = row[valid_indices]
@@ -83,21 +83,12 @@ print(sigma_estimate)
 # Plot
 fig, axs = plt.subplots(2, 2, figsize=(12, 10))
 
-for i, ((perfect_row, simulated_row), (x_valid, fitted_values)) in enumerate(zip(zip(perfect_switching_rates[1:], simulated_switching_rates[1:]), all_fitted_values)):
-    # Plot the perfect switching rates
-    axs[0, 0].plot(perfect_row, label=f'Perfect d = {d[i]}', alpha=0.5)
-
-    # Plot the simulated switching rates
-    axs[0, 0].plot(simulated_row, label=f'Simulated d = {d[i]}', alpha=0.5, linestyle=':')
-
-    # Plot the fitted values
+for i, (row, (x_valid, fitted_values)) in enumerate(zip(simulated_switching_rates[1:], all_fitted_values)):
+    axs[0, 0].plot(row, label=f'd = {d[i]}', alpha=0.5)
     axs[0, 0].plot(x_valid, fitted_values, linestyle='--', linewidth=1.5, label=f'Fit d = {d[i]}')
-
-# Set title, labels, and legend for the plot
 axs[0, 0].set_title('Computed Switching Rates with Fitted Curves')
 axs[0, 0].set_xlabel('Time Steps')
 axs[0, 0].set_ylabel('Switching Rate')
-axs[0, 0].legend()
 
 axs[0, 1].set_aspect('equal', adjustable='box')
 for i, distance in enumerate(d):

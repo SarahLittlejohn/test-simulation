@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+# Generating the perfect gaussian data
 def generate_gaussian_matrix(baseline, initial_amplitude, distances, length_impact=200, noise_std=0.3, baseline_noise_std=0.3):
     """
     Generate a matrix where each row is a Gaussian dip series, with noise added to the Gaussian region
@@ -26,16 +27,14 @@ def generate_gaussian_matrix(baseline, initial_amplitude, distances, length_impa
     # Create the baseline series with noise
     baseline_series = np.random.normal(loc=baseline, scale=baseline_noise_std, size=full_length)
     
-    # Initialize a matrix to hold all rows
-    num_rows = len(distances) + 1
-    matrix = np.empty((num_rows, full_length))
-    matrix[0, :] = baseline_series  # First row is the noisy baseline
+    # Initialize a list to hold all the rows
+    rows = [baseline_series]  # Start with the noisy baseline as the first row
     
     # Generate Gaussian dip template
     x = np.linspace(-3, 3, length_impact)  # x-values for the Gaussian curve
     
     # Generate each Gaussian dip series
-    for i, distance in enumerate(distances, start=1):
+    for distance in distances:
         # Calculate the minimum value for this Gaussian dip
         min_value = baseline - (baseline - initial_amplitude) * math.exp(-distance / 8)
         
@@ -46,20 +45,21 @@ def generate_gaussian_matrix(baseline, initial_amplitude, distances, length_impa
         noise = np.random.normal(loc=0, scale=noise_std, size=length_impact)
         gaussian_dip_noisy = gaussian_dip + noise
         
-        # Start with a fresh noisy baseline series
-        row_series = np.random.normal(loc=baseline, scale=baseline_noise_std, size=full_length)
+        # Create a series with NaNs everywhere
+        dip_series = np.full(full_length, np.nan, dtype=float)
         
         # Add the Gaussian dip with noise at the correct time
         start_index = int(distance * 50)
-        end_index = min(start_index + length_impact, full_length)
-        if start_index < full_length:  # Only proceed if the start is valid
-            row_series[start_index:end_index] = gaussian_dip_noisy[:end_index - start_index]
+        end_index = start_index + length_impact
+        if end_index <= full_length:
+            dip_series[start_index:end_index] = gaussian_dip_noisy
         
-        # Add the row to the matrix
-        matrix[i, :] = row_series
+        # Add this dip series as a new row
+        rows.append(dip_series)
     
+    # Convert the list of rows into a matrix
+    matrix = np.vstack(rows)
     return matrix
-
 
 # Parameters
 baseline = 7
