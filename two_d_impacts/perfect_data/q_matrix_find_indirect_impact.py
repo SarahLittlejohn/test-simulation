@@ -20,7 +20,6 @@ def generate_2d_gaussian_matrix_single_impact(
 
     return matrix
 
-
 # Parameters
 baseline = 7
 initial_amplitude = 3

@@ -2,7 +2,6 @@ import numpy as np
 import math
 
 # Generating the perfect gaussian data
-
 def generate_gaussian_matrix(baseline, initial_amplitude, distances, length_impact=200, noise_std=0.3, baseline_noise_std=0.3):
     """
     Generate a matrix where each row is a Gaussian dip series, with noise added to the Gaussian region

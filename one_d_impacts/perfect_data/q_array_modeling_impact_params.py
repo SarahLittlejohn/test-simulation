@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from generate_gaussian_data import generate_gaussian_matrix
+from tools.generate_gaussian_data import generate_gaussian_matrix
+
+# This file is a showing how to find the parameters that define how the impact propagates accross the lines of qubits
 
 # Defining parameters
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]

@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from generate_parity_series import generate_parity_series_dynamic
-from find_switching_rate import find_dynamic_switching_rates_noisy_series
-from perfect_data.generate_gaussian_data import generate_gaussian_matrix
+from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
+from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
+from tools.generate_gaussian_data import generate_gaussian_matrix
 
 # Defining parameters
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
@@ -26,7 +26,7 @@ def reverse_bell_curve(x, a, b, c, d):
 
 def fit_switching_rate(computed_switching_rates, bell_curve_mid_point):
     x = np.linspace(0, len(computed_switching_rates), len(computed_switching_rates))
-    popt, _ = curve_fit(reverse_bell_curve, x, computed_switching_rates, p0=[10, bell_curve_mid_point, 100, 7])
+    popt, _ = curve_fit(reverse_bell_curve, x, computed_switching_rates, p0=[10, bell_curve_mid_point, 100, 7], maxfev=5000)
     return reverse_bell_curve(x, *popt)
 
 # Loop through the rows of the Gaussian matrix (skip baseline)
@@ -85,7 +85,6 @@ axs[0, 1].set_title('Fitted Switching Rates')
 axs[0, 1].set_xlabel('Time Steps')
 axs[0, 1].set_ylabel('Switching Rate')
 axs[0, 1].legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize='small', title="Distance d")
-
 
 # Subplot 3: Min Switching Rates
 axs[1, 0].scatter(d, min_switching_rates, color='red', label='Data')

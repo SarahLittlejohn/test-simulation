@@ -3,7 +3,7 @@ from hmmlearn import hmm
 
 def find_static_switching_rate_clean_series(series):
     """
-    Finds the switching rate of a clean series
+    Finds the switching rate of a clean parity series
 
     Parameters:
     series: the parrity series

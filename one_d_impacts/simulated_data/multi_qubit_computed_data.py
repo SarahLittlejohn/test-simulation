@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from perfect_data.generate_gaussian_data import generate_gaussian_matrix
-from generate_parity_series import generate_parity_series_dynamic
-from find_switching_rate import find_dynamic_switching_rates_noisy_series
+from tools.generate_gaussian_data import generate_gaussian_matrix
+from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
+from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
 
 # Defining parametersv
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
@@ -66,7 +66,7 @@ def linear_model(distance, sigma):
 
 d = np.array(d)
 
-params_A, _ = curve_fit(exp_decay, d, min_switching_rates)
+params_A, _ = curve_fit(exp_decay, d, min_switching_rates, maxfev=5000)
 lambda_estimate = params_A[0]
 
 params_t, _ = curve_fit(linear_model, d, min_times)
