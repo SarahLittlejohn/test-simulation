@@ -36,8 +36,12 @@ def generate_parity_series_dynamic(switching_rates, num_per_rate):
     series: series parity data
     """
     series = [0]
+    print("HERE")
     for rate in switching_rates:
+        print("HERE")
+        print(f'rate: {rate}')
         p_switch = 1 / rate
+        print(f'p_switch: {p_switch}')
         for _ in range(num_per_rate):
             if random.random() < p_switch:
                 next_digit = 1 - series[-1]
@@ -76,6 +80,7 @@ def generate_e2e_parity_series_with_noise(n, switching_rate, p_noise):
     Takes in a switching rate, generates the parity series and adds nosie to it
 
     Parameters:
+    n: how many outputs there should be (i.e. how much data)
     series: the parity series we're adding noise to
     p_noise: the probability of noise
 
