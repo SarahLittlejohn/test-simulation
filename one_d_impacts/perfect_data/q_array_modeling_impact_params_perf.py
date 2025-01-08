@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from perfect_data.generate_gaussian_data import generate_gaussian_matrix
-from computed_data.generate_parity_series import generate_parity_series_dynamic
-from computed_data.model_switching_rate_from_gen_parity import segment_and_compute_switching_rates
+from tools.generate_gaussian_data import generate_gaussian_matrix
+
+# This file is a showing how to find the parameters that define how the impact propagates accross the lines of qubits
 
 # Defining parameters
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
@@ -29,20 +29,16 @@ all_fitted_values = []
 
 # fit each row
 for i, row in enumerate(gaussian_matrix):
-    valid_indices = ~np.isnan(row)  # Mask for valid (non-NaN) data
-    x_valid = np.where(valid_indices)[0]  # Indices of valid values
-    y_valid = row[valid_indices]  # Non-NaN values
+    valid_indices = ~np.isnan(row)
+    x_valid = np.where(valid_indices)[0]
+    y_valid = row[valid_indices]
 
     # Skip rows with no valid data
     if len(x_valid) == 0:
         continue
 
-    parity_series = generate_parity_series_dynamic(y_valid, len(y_valid))
-    switching_rates = segment_and_compute_switching_rates(parity_series, 1000)
-
     # Fit the curve
-    x_segment = np.linspace(x_valid[0], x_valid[-1], len(switching_rates))
-    fitted_values, _ = fit_switching_rate(x_segment, switching_rates)
+    fitted_values, _ = fit_switching_rate(x_valid, y_valid)
     all_fitted_values.append((x_valid, fitted_values))
 
     if i > 0:
@@ -55,7 +51,6 @@ for i, row in enumerate(gaussian_matrix):
 
 # for i, (rate, time) in enumerate(zip(min_switching_rates, min_times), start=1):
 #     print(f"Row {i}: Min Switching Rate = {rate:.4f}, Time = {time}")
-
 
 # Fit the exponetial decay
 def exp_decay(distance, lambda_):

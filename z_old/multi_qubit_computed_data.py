@@ -1,9 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from generate_gaussian_data import generate_gaussian_matrix
+from tools.generate_gaussian_data import generate_gaussian_matrix
+from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
+from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
 
-# Defining parameters
+# Defining parametersv
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
 baseline = 7
 initial_amplitude = 3
@@ -27,16 +29,20 @@ all_fitted_values = []
 
 # fit each row
 for i, row in enumerate(gaussian_matrix):
-    valid_indices = ~np.isnan(row)
-    x_valid = np.where(valid_indices)[0]
-    y_valid = row[valid_indices]
+    valid_indices = ~np.isnan(row)  # Mask for valid (non-NaN) data
+    x_valid = np.where(valid_indices)[0]  # Indices of valid values
+    y_valid = row[valid_indices]  # Non-NaN values
 
     # Skip rows with no valid data
     if len(x_valid) == 0:
         continue
 
+    parity_series = generate_parity_series_dynamic(y_valid, len(y_valid))
+    switching_rates = find_dynamic_switching_rates_noisy_series(parity_series, 1000)
+
     # Fit the curve
-    fitted_values, _ = fit_switching_rate(x_valid, y_valid)
+    x_segment = np.linspace(x_valid[0], x_valid[-1], len(switching_rates))
+    fitted_values, _ = fit_switching_rate(x_segment, switching_rates)
     all_fitted_values.append((x_valid, fitted_values))
 
     if i > 0:
@@ -50,6 +56,7 @@ for i, row in enumerate(gaussian_matrix):
 # for i, (rate, time) in enumerate(zip(min_switching_rates, min_times), start=1):
 #     print(f"Row {i}: Min Switching Rate = {rate:.4f}, Time = {time}")
 
+
 # Fit the exponetial decay
 def exp_decay(distance, lambda_):
     return 7 - 4 * np.exp(-lambda_ * distance)
@@ -59,7 +66,7 @@ def linear_model(distance, sigma):
 
 d = np.array(d)
 
-params_A, _ = curve_fit(exp_decay, d, min_switching_rates)
+params_A, _ = curve_fit(exp_decay, d, min_switching_rates, maxfev=5000)
 lambda_estimate = params_A[0]
 
 params_t, _ = curve_fit(linear_model, d, min_times)

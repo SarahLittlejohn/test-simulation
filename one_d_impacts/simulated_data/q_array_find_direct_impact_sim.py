@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from generate_gaussian_data import generate_gaussian_matrix_variable_impact
+from tools.generate_gaussian_data import generate_gaussian_matrix_variable_impact
+from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
+from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
 
 # Parameters
 d = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -9,31 +11,36 @@ baseline = 7
 initial_amplitude = 3
 length_impact = 200
 d_impact = 5
+simulation_segment = 1000
 min_switching_rates = []
 min_times = []
 all_fitted_values = []
 
+perfect_switching_rates = generate_gaussian_matrix_variable_impact(baseline, initial_amplitude, d, length_impact, impact=d_impact)
 
-gaussian_matrix = generate_gaussian_matrix_variable_impact(baseline, initial_amplitude, d, length_impact, impact=d_impact)
+simulated_switching_rates_rows = []
+for row in perfect_switching_rates:
+    simulated_parity_rates = generate_parity_series_dynamic(row, simulation_segment)
+    switching_rates = find_dynamic_switching_rates_noisy_series(simulated_parity_rates, simulation_segment)
+    simulated_switching_rates_rows.append(switching_rates)
 
+# Create a matrix of simulated switching rates
+simulated_switching_rates = np.array(simulated_switching_rates_rows)
 
 def reverse_bell_curve(x, a, b, c, d):
     return -a * np.exp(-((x - b)**2) / (2 * c**2)) + d
-
 
 def fit_switching_rate(x, y):
     popt, _ = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
     return reverse_bell_curve(x, *popt), popt
 
-
 global_min_rate = float('inf')
 global_min_d = None
 global_min_time = None
 
-
 fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-baseline_row = gaussian_matrix[0]
+baseline_row = simulated_switching_rates[0]
 x_baseline = np.arange(len(baseline_row))
 valid_baseline_indices = ~np.isnan(baseline_row)
 x_valid_baseline = x_baseline[valid_baseline_indices]
@@ -43,7 +50,7 @@ axs[0].plot(x_valid_baseline, y_valid_baseline, color='grey', linewidth=2, label
 
 adjusted_d = d[:-1]
 
-for i, (row, dist) in enumerate(zip(gaussian_matrix[1:], adjusted_d)):
+for i, (row, dist) in enumerate(zip(simulated_switching_rates[1:], adjusted_d)):
     valid_indices = ~np.isnan(row)
     x_valid = np.where(valid_indices)[0]
     y_valid = row[valid_indices]
