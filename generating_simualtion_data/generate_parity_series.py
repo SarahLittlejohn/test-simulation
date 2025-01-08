@@ -1,4 +1,6 @@
 import random
+import math
+import numpy as np
 
 def generate_parity_series(n, switching_rate):
     """
@@ -36,14 +38,15 @@ def generate_parity_series_dynamic(switching_rates, num_per_rate):
     series: series parity data
     """
     series = [0]
-    print("HERE")
     for rate in switching_rates:
-        print("HERE")
-        print(f'rate: {rate}')
+        print(f'SWITCHING RATE: {rate}')
         p_switch = 1 / rate
-        print(f'p_switch: {p_switch}')
         for _ in range(num_per_rate):
-            if random.random() < p_switch:
+            if np.isnan(p_switch):
+                next_digit = np.nan
+            elif np.isnan(series[-1]):
+                next_digit = 0
+            elif random.random() < p_switch:
                 next_digit = 1 - series[-1]
             else:
                 next_digit = series[-1]

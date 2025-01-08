@@ -90,8 +90,11 @@ def find_dynamic_switching_rates_noisy_series(parity_series, segment_length):
     for i in range(num_segments):
         # Extract segment
         segment = parity_series[i * segment_length:(i + 1) * segment_length]
-        # Compute switching rate using the provided model function
-        rate = find_static_switching_rate_noisy_series(segment)
+        if np.isnan(segment).any():
+            rate = np.nan
+        else:
+            # Compute switching rate using the provided model function
+            rate = find_static_switching_rate_noisy_series(segment)
         switching_rates.append(rate)
 
     return switching_rates
