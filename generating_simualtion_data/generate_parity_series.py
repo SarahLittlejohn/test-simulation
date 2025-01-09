@@ -39,7 +39,6 @@ def generate_parity_series_dynamic(switching_rates, num_per_rate):
     """
     series = [0]
     for rate in switching_rates:
-        print(f'SWITCHING RATE: {rate}')
         p_switch = 1 / rate
         for _ in range(num_per_rate):
             if np.isnan(p_switch):
