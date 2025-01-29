@@ -16,7 +16,7 @@ perfect_switching_rates = generate_gaussian_matrix(baseline, initial_amplitude, 
 simulated_switching_rates_rows = []
 for row in perfect_switching_rates:
     simulated_parity_rates = generate_parity_series_dynamic(row, simulation_segment)
-    switching_rates = find_dynamic_switching_rates_noisy_series(simulated_parity_rates, simulation_segment)
+    switching_rates, switching_rate_errors = find_dynamic_switching_rates_noisy_series(simulated_parity_rates, simulation_segment)
 
     simulated_switching_rates_rows.append(switching_rates)
 
