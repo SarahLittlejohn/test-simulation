@@ -20,12 +20,13 @@ def reverse_bell_curve(x, a, b, c, d):
 
 # Fit the reverse bell curve to the valid data
 def fit_switching_rate(x, y):
-    popt, _ = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
-    return reverse_bell_curve(x, *popt), popt
+    popt, pcov = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
+    return reverse_bell_curve(x, *popt), popt, pcov
 
 min_switching_rates = []
 min_times = []
 all_fitted_values = []
+all_error_values = []
 
 # fit each row
 for i, row in enumerate(gaussian_matrix):
@@ -38,10 +39,14 @@ for i, row in enumerate(gaussian_matrix):
         continue
 
     # Fit the curve
-    fitted_values, _ = fit_switching_rate(x_valid, y_valid)
+    fitted_values, opt_params, covariance_matrix = fit_switching_rate(x_valid, y_valid)
     all_fitted_values.append((x_valid, fitted_values))
 
     if i > 0:
+        print(f"Row: {i}")
+        print(f"Error: {np.sqrt(np.diag(covariance_matrix))}")
+        print(f"Matrix: {covariance_matrix}")
+        all_error_values.append(np.sqrt(np.diag(covariance_matrix)))
         min_rate = np.min(fitted_values)
         min_index = np.argmin(fitted_values)
         min_time = x_valid[min_index] 
@@ -61,14 +66,27 @@ def linear_model(distance, sigma):
 
 d = np.array(d)
 
-params_A, _ = curve_fit(exp_decay, d, min_switching_rates)
+params_A, cov_A = curve_fit(exp_decay, d, min_switching_rates)
 lambda_estimate = params_A[0]
+lambda_errors = np.sqrt(np.diag(cov_A))[0]
 
-params_t, _ = curve_fit(linear_model, d, min_times)
+params_t, cov_t = curve_fit(linear_model, d, min_times)
 sigma_estimate = params_t[0]
+sigma_errors = np.sqrt(np.diag(cov_t))[0]
 
-print(lambda_estimate)
-print(sigma_estimate)
+min_switching_rate_errors = [errors[0] for errors in all_error_values]
+time_step_errors = [errors[1] for errors in all_error_values]
+min_switching_rate_errors = np.array(min_switching_rate_errors)
+print("switching rate errors::")
+print(min_switching_rate_errors)
+time_step_errors = np.array(time_step_errors)
+min_switching_rates = np.array(min_switching_rates)
+
+print("switching rate errors")
+print(min_switching_rate_errors)
+
+print(f'Lambda estimate: {lambda_estimate} +/- {lambda_errors}')
+print(f'Sigma estimate: {sigma_estimate} +/- {sigma_errors}')
 
 # Plot
 fig, axs = plt.subplots(2, 2, figsize=(12, 10))
@@ -96,15 +114,15 @@ handles, labels = axs[0, 1].get_legend_handles_labels()
 labels.append("Impact at d=0")
 axs[0, 1].legend(handles=handles, labels=labels, loc='upper left')
 
-axs[1, 0].scatter(d, min_switching_rates, color='red', label='Data')
-axs[1, 0].plot(d, exp_decay(d, lambda_estimate), label=f'Fitted Exp Decay (λ={lambda_estimate:.4f})')
+axs[1, 0].errorbar(d, min_switching_rates, yerr=min_switching_rate_errors, fmt='o', color='red', label='Data with Error Bars')
+axs[1, 0].plot(d, exp_decay(d, lambda_estimate), label=f'Fitted Exp Decay (λ={lambda_estimate:.4f} +/- {lambda_errors:.4f})')
 axs[1, 0].set_title('Exponential Decay Fit')
 axs[1, 0].set_xlabel('Distance (d)')
 axs[1, 0].set_ylabel('Min Switching Rate')
 axs[1, 0].legend()
 
-axs[1, 1].scatter(d, min_times, color='red', label='Data')
-axs[1, 1].plot(d, linear_model(d, sigma_estimate), label=f'Linear Fit (σ={sigma_estimate:.4f})')
+axs[1, 1].errorbar(d, min_times, yerr=time_step_errors, fmt='o', color='red', label='Data with Error Bars')
+axs[1, 1].plot(d, linear_model(d, sigma_estimate), label=f'Linear Fit (σ={sigma_estimate:.4f} +/- {sigma_errors:.4f})')
 axs[1, 1].set_title('Linear Fit of Time Steps')
 axs[1, 1].set_xlabel('Distance (d)')
 axs[1, 1].set_ylabel('Time Step')
@@ -112,3 +130,6 @@ axs[1, 1].legend()
 
 plt.tight_layout()
 plt.show()
+
+print(min_switching_rates)
+print(all_error_values[0])
