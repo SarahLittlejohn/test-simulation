@@ -4,6 +4,7 @@ from scipy.optimize import curve_fit
 from tools.generate_gaussian_data import generate_gaussian_matrix
 from generating_simualtion_data.generate_parity_series import generate_parity_series_dynamic
 from generating_simualtion_data.find_switching_rate import find_dynamic_switching_rates_noisy_series
+from one_d_impacts.simulated_data.error_prop import propagate_fit_errors
 
 d = [0, 0.5, 1, 1.5 , 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
 baseline = 7
@@ -14,14 +15,17 @@ simulation_segment = 500
 # Generate the simulation data
 perfect_switching_rates = generate_gaussian_matrix(baseline, initial_amplitude, d, length_impact)
 simulated_switching_rates_rows = []
+simulated_switching_rate_errors_rows = []
 for row in perfect_switching_rates:
     simulated_parity_rates = generate_parity_series_dynamic(row, simulation_segment)
     switching_rates, switching_rate_errors = find_dynamic_switching_rates_noisy_series(simulated_parity_rates, simulation_segment)
 
     simulated_switching_rates_rows.append(switching_rates)
+    simulated_switching_rate_errors_rows.append(switching_rate_errors)
 
-# Create a matrix of simulated switching rates
+# Create a matrix of simulated switching rates & errors
 simulated_switching_rates = np.array(simulated_switching_rates_rows)
+simulated_switching_rate_errors = np.array(simulated_switching_rate_errors_rows)
 
 # # Define reverse bell curve function
 def reverse_bell_curve(x, a, b, c, d):
@@ -29,34 +33,45 @@ def reverse_bell_curve(x, a, b, c, d):
 
 # Fit the reverse bell curve to the valid data
 def fit_switching_rate(x, y):
-    popt, _ = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
-    return reverse_bell_curve(x, *popt), popt
+    popt, pcov = curve_fit(reverse_bell_curve, x, y, p0=[1, np.mean(x), 50, 7])
+    perr = np.sqrt(np.diag(pcov))
+
+    return reverse_bell_curve(x, *popt), popt, perr
 
 min_switching_rates = []
 min_times = []
+min_switching_rate_errors = []
+min_times_errors = []
 all_fitted_values = []
 
 # # fit each row
-for i, row in enumerate(perfect_switching_rates):
+for i, row in enumerate(simulated_switching_rates):
     valid_indices = ~np.isnan(row)
     x_valid = np.where(valid_indices)[0]
     y_valid = row[valid_indices]
+    error_valid = simulated_switching_rate_errors[i][valid_indices]
 
     # Skip rows with no valid data
     if len(x_valid) == 0:
         continue
 
     # Fit the curve
-    fitted_values, _ = fit_switching_rate(x_valid, y_valid)
+    fitted_values, popt, perr = fit_switching_rate(x_valid, y_valid)
     all_fitted_values.append((x_valid, fitted_values))
 
+    fit_errors = propagate_fit_errors(x_valid, popt, perr)
+
     if i > 0:
-        min_rate = np.min(fitted_values)
         min_index = np.argmin(fitted_values)
-        min_time = x_valid[min_index] 
+        min_rate = fitted_values[min_index]
+        min_time = x_valid[min_index]
 
         min_switching_rates.append(min_rate)
         min_times.append(min_time)
+
+        total_error = np.sqrt(fit_errors[min_index]**2 + error_valid[min_index]**2)
+        min_switching_rate_errors.append(total_error)
+        min_times_errors.append(perr[1])
 
 # for i, (rate, time) in enumerate(zip(min_switching_rates, min_times), start=1):
 #     print(f"Row {i}: Min Switching Rate = {rate:.4f}, Time = {time}")
@@ -105,14 +120,14 @@ handles, labels = axs[0, 1].get_legend_handles_labels()
 labels.append("Impact at d=0")
 axs[0, 1].legend(handles=handles, labels=labels, loc='upper left')
 
-axs[1, 0].scatter(d, min_switching_rates, color='red', label='Data')
+axs[1, 0].errorbar(d, min_switching_rates, yerr=min_switching_rate_errors, fmt='o', color='red', label='Data with Errors')
 axs[1, 0].plot(d, exp_decay(d, lambda_estimate), label=f'Fitted Exp Decay (λ={lambda_estimate:.4f})')
 axs[1, 0].set_title('Exponential Decay Fit')
 axs[1, 0].set_xlabel('Distance (d)')
 axs[1, 0].set_ylabel('Min Switching Rate')
 axs[1, 0].legend()
 
-axs[1, 1].scatter(d, min_times, color='red', label='Data')
+axs[1, 1].errorbar(d, min_times, yerr=min_times_errors, fmt='o', color='red', label='Data with Errors')
 axs[1, 1].plot(d, linear_model(d, sigma_estimate), label=f'Linear Fit (σ={sigma_estimate:.4f})')
 axs[1, 1].set_title('Linear Fit of Time Steps')
 axs[1, 1].set_xlabel('Distance (d)')
@@ -121,8 +136,3 @@ axs[1, 1].legend()
 
 plt.tight_layout()
 plt.show()
-
-# plt.plot(perfect_switching_rates[0])
-# plt.plot(perfect_switching_rates[1])
-# print(simulated_parity_rates_rows[1])
-# plt.show()
